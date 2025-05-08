@@ -22,7 +22,6 @@ public class Server extends JFrame {
     private JLabel playerCountLabel; // Label to display the number of connected players
     private JButton newRoundButton; // Button to start a new round
 
-
     public Server(int maxPlayers) {
         super("Blackjack Server");
         this.maxPlayers = maxPlayers;
@@ -63,14 +62,14 @@ public class Server extends JFrame {
 
     private void setupServer() {
         try {
-            //Create server socket and bind at port 10000
+            // Create server socket and bind at port 10000
             serverSocket = new ServerSocket(initialPort);
             log("Server waiting for players at initial port " + initialPort);
-            //Create new Thread
+            // Create new Thread
             Thread acceptThread = new Thread(() -> {
                 while (!gameStarted && clients.size() < maxPlayers) {
                     try {
-                        //Wait for client to connect to port 10000
+                        // Wait for client to connect to port 10000
                         Socket initialClientSocket = serverSocket.accept();
                         // Determine a new port for this client
                         int newClientPort = findAvailablePort();
@@ -86,7 +85,8 @@ public class Server extends JFrame {
                             ClientHandler client = new ClientHandler(clientSocket, this);
                             clients.add(client);
                             new Thread(client).start();
-                            log("New player connected on port " + newClientPort + ": " + clientSocket.getInetAddress() + " (" + client.getPlayerName() + ")");
+                            log("New player connected on port " + newClientPort + ": " + clientSocket.getInetAddress()
+                                    + " (" + client.getPlayerName() + ")");
                             updatePlayerCount();
 
                             // Close the initial socket and the temporary client server socket
@@ -94,7 +94,7 @@ public class Server extends JFrame {
                             initialClientSocket.close();
                             clientServerSocket.close();
                         }
-                        //Error handling
+                        // Error handling
                         else {
                             log("No available port for new client. Connection refused.");
                             PrintWriter outToClient = new PrintWriter(initialClientSocket.getOutputStream(), true);
@@ -143,7 +143,8 @@ public class Server extends JFrame {
     }
 
     private void startGame() {
-        if (gameStarted) return;
+        if (gameStarted)
+            return;
         gameStarted = true;
         startButton.setEnabled(false);
         newRoundButton.setEnabled(true); // Enable the new round button when the game starts
@@ -162,21 +163,20 @@ public class Server extends JFrame {
     }
 
     private void startNewRound() {
-        if (!gameStarted) return;
+        if (!gameStarted)
+            return;
         gameStarted = false;
-        newRoundButton.setEnabled(false); // Disable the new round button during the round setup
-        log("Starting new round");
-        broadcast("NEW_ROUND_START");
-        deck = new Deck(); // Create a new deck for the new round
-        deck.shuffle();
-        dealer = new DealerAI(deck);
-        gameManager.startNewRound(clients, deck, dealer); // Call a new method in GameManager for new round
-
-        if (!clients.isEmpty()) {
-            clients.get(gameManager.getCurrentPlayerIndex()).sendMessage("YOUR_TURN"); // Send turn to the first player
+        newRoundButton.setEnabled(false);
+        if (deck.getRemainingCards().size() > 1) {
+            deck.shuffle();
+            dealer = new DealerAI(deck);
+            gameManager.startNewRound(clients, deck, dealer);
+            gameStarted = true;
+            newRoundButton.setEnabled(true);
+            return;
         }
-        gameStarted = true;
-        newRoundButton.setEnabled(true); // Enable the new round button after the round starts
+        log("Starting new round");
+        broadcast("DECK RAN  OUT OF CARD");
     }
 
     public void enableNewRoundButton() {
@@ -238,7 +238,8 @@ public class Server extends JFrame {
                 JOptionPane.showMessageDialog(null, "Invalid number of players.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Invalid input for number of players.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Invalid input for number of players.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

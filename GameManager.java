@@ -34,24 +34,22 @@ public class GameManager {
     public void startNewRound(List<ClientHandler> clients, Deck deck, DealerAI dealer) {
         currentPlayerIndex = 0;
         roundOver = false;
-
-        for (ClientHandler player : clients) {
-            player.clearCards();
-            Card card1 = deck.drawCard();
-            Card card2 = deck.drawCard();
-            player.sendInitialCards(card1, card2);
-        }
-
-        dealer.getCards().clear();
-        dealer.drawCard();
-        dealer.drawCard();
-        server.broadcastDealerFirstCard(dealer.getCards().get(0));
-
-        if (!clients.isEmpty()) {
-            server.sendMessageToClient(clients.get(currentPlayerIndex), "YOUR_TURN");
+    
+        if (deck.getRemainingCards().size() > 1) { 
+            for (ClientHandler player : clients) {
+                player.clearCards();
+                Card card1 = deck.drawCard();
+                Card card2 = deck.drawCard();
+                player.sendInitialCards(card1, card2);
+            }
+        
+            dealer.getCards().clear();
+            dealer.drawCard();
+            dealer.drawCard();
+            server.broadcastDealerFirstCard(dealer.getCards().get(0));
         }
     }
-
+    
     public int getCurrentPlayerIndex() {
         return currentPlayerIndex;
     }
@@ -64,7 +62,7 @@ public class GameManager {
                 Card newCard = server.getDeck().drawCard();
                 player.addCard(newCard);
                 server.sendMessageToClient(player, "NEW_CARD " + newCard.toString());
-                player.sendHand();
+
                 if (player.getScore() > 21) {
                     server.broadcastFromGameManager(player.getPlayerName() + " BUSTED!");
                     moveToNextPlayer();
