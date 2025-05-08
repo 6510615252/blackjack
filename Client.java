@@ -1,6 +1,9 @@
 import java.io.*;
 import java.net.*;
 import javax.swing.*;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+import javax.swing.text.Style;
 import java.awt.*;
 
 public class Client extends JFrame {
@@ -11,7 +14,7 @@ public class Client extends JFrame {
     private String serverAddress;
     private int serverPort;
 
-    private JTextArea messageArea;
+    private JTextPane messageArea;
     private JTextField inputField;
     private JButton hitButton;
     private JButton standButton;
@@ -82,7 +85,7 @@ public class Client extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        messageArea = new JTextArea();
+        messageArea = new JTextPane();
         messageArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(messageArea);
 
@@ -155,9 +158,9 @@ public class Client extends JFrame {
                     String cardStr = line.substring("DEALER_FIRST_CARD ".length());
                     dealerCardLabel.setText("Dealer: " + cardStr);
                 } else if (line.startsWith("DEALER_HAND")) {
-                    showMessage("Dealer's hand: " + line.substring("DEALER_HAND ".length()));
+                    showMessageWithDelay("Dealer's hand: " + line.substring("DEALER_HAND ".length()), 1000);
                 } else if (line.startsWith("DEALER_HIT")) {
-                    showMessage("Dealer hits: " + line.substring("DEALER_HIT ".length()));
+                    showMessageWithDelay("Dealer hits: " + line.substring("DEALER_HIT ".length()), 1000);
                 } else if (line.startsWith("YOUR_TURN")) {
                     showMessage("It's your turn.");
                     isMyTurn = true;
@@ -186,8 +189,56 @@ public class Client extends JFrame {
         }
     }
     
+    private void showMessageWithDelay(String message, int delay) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                Thread.sleep(delay); 
+                showMessage(message);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     private void showMessage(String message) {
-        SwingUtilities.invokeLater(() -> messageArea.append(message + "\n"));
+         SwingUtilities.invokeLater(() -> {
+            try {
+                StyledDocument doc = messageArea.getStyledDocument();
+                Style style = messageArea.addStyle("myStyle", null);
+
+                if (message.startsWith("Game started!")) {
+                StyleConstants.setForeground(style, new Color(0, 150, 0)); 
+            } else if (message.startsWith("It's your turn.")) {
+                StyleConstants.setForeground(style, new Color(0, 100, 200)); 
+            } else if (message.startsWith("Not enough cards")) {
+                StyleConstants.setForeground(style, Color.RED);            
+            } else if (message.contains("BUSTED")) {
+                StyleConstants.setForeground(style, Color.RED);            
+            } else if (message.contains("LOSE")) {
+                StyleConstants.setForeground(style, Color.RED);            
+            } else if (message.contains("WIN")) {
+                StyleConstants.setForeground(style, new Color(0, 150, 0)); 
+            } else if (message.contains("PUSH")) {
+                StyleConstants.setForeground(style, new Color(100, 100, 100));
+            } else if (message.contains("STANDS")) {
+                StyleConstants.setForeground(style, new Color(200, 100, 0)); 
+            } else if (message.contains("HITS")) {
+                StyleConstants.setForeground(style, new Color(200, 100, 0));     
+            } else if (message.contains("DEALER_TURN")) {
+                StyleConstants.setForeground(style, new Color(150, 0, 150)); 
+            } else if (message.contains("Dealer hits:")) {
+                StyleConstants.setForeground(style, new Color(150, 0, 150));  
+            } else if (message.contains("CLEAR_HAND")) {
+                StyleConstants.setForeground(style, Color.LIGHT_GRAY);    
+            } else {
+                StyleConstants.setForeground(style, Color.BLACK);      
+            }
+
+                doc.insertString(doc.getLength(), message + "\n", style);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
     private void updateControlButtons() {
         hitButton.setEnabled(isMyTurn);
