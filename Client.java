@@ -79,7 +79,7 @@ public class Client extends JFrame {
 
     private void setupGUI() {
         setTitle("Blackjack Client");
-        setSize(400, 500);
+        setSize(600, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 

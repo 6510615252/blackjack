@@ -47,6 +47,8 @@ public class GameManager {
             dealer.drawCard();
             dealer.drawCard();
             server.broadcastDealerFirstCard(dealer.getCards().get(0));
+            currentPlayerIndex--;
+            moveToNextPlayer();
         }
     }
     
