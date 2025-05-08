@@ -63,7 +63,7 @@ public class GameManager {
             try {
                 Card newCard = server.getDeck().drawCard();
                 player.addCard(newCard);
-                server.sendMessageToClient(player, "NEW_CARD " + newCard.toString());
+
 
                 if (player.getScore() > 21) {
                     server.broadcastFromGameManager(player.getPlayerName() + " BUSTED!");

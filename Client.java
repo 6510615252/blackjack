@@ -2,8 +2,6 @@ import java.io.*;
 import java.net.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class Client extends JFrame {
 
@@ -19,7 +17,8 @@ public class Client extends JFrame {
     private JButton standButton;
     private JPanel cardPanel;
     private JLabel dealerCardLabel;
-    private boolean isMyTurn = false; // Added to track the client's turn
+    private boolean isMyTurn = false;
+    
 
     public Client(String serverAddress, int port) {
         this.serverAddress = serverAddress;
@@ -99,41 +98,25 @@ public class Client extends JFrame {
         hitButton.setEnabled(false);
         standButton.setEnabled(false);
 
-        // Disable buttons initially
-        hitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (isMyTurn) {
-                    sendMessage("HIT");
-                } else {
-                    showMessage("It's not your turn!");
-                }
-            }
-        });
-
-        standButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (isMyTurn) {
-                    sendMessage("STAND");
-                } else {
-                    showMessage("It's not your turn!");
-                }
-            }
-        });
+        hitButton.addActionListener(e -> sendMessage("HIT"));
+        standButton.addActionListener(e -> sendMessage("STAND"));
 
         controlPanel.add(hitButton);
         controlPanel.add(standButton);
 
         cardPanel = new JPanel();
-        cardPanel.setLayout(new FlowLayout());
+        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+
+        JScrollPane cardScrollPane = new JScrollPane(cardPanel);
+        cardScrollPane.setPreferredSize(new Dimension(150, 0));
+        cardScrollPane.setMinimumSize(new Dimension(100, 0));
 
         dealerCardLabel = new JLabel("Dealer: ?");
 
         add(scrollPane, BorderLayout.CENTER);
         add(inputField, BorderLayout.NORTH);
         add(controlPanel, BorderLayout.SOUTH);
-        add(new JScrollPane(cardPanel), BorderLayout.EAST);
+        add(cardScrollPane, BorderLayout.EAST);
         add(dealerCardLabel, BorderLayout.WEST);
 
         setVisible(true);
@@ -142,13 +125,13 @@ public class Client extends JFrame {
     private void receiveMessages() {
         try {
             String line;
+            hitButton.setEnabled(false);
+            standButton.setEnabled(false);
             while ((line = in.readLine()) != null) {
                 if (line.equals("INPUT_NAME")) {
                     continue;
                 } else if (line.equals("GAME_START")) {
                     showMessage("Game started!");
-                    isMyTurn = false;
-                    updateControlButtons();
                     cardPanel.removeAll();
                     cardPanel.revalidate();
                     cardPanel.repaint();
@@ -175,7 +158,7 @@ public class Client extends JFrame {
                     showMessage("Dealer's hand: " + line.substring("DEALER_HAND ".length()));
                 } else if (line.startsWith("DEALER_HIT")) {
                     showMessage("Dealer hits: " + line.substring("DEALER_HIT ".length()));
-                } else if (line.equals("YOUR_TURN")) {
+                } else if (line.startsWith("YOUR_TURN")) {
                     showMessage("It's your turn.");
                     isMyTurn = true;
                     updateControlButtons();
@@ -202,7 +185,7 @@ public class Client extends JFrame {
             }
         }
     }
-
+    
     private void showMessage(String message) {
         SwingUtilities.invokeLater(() -> messageArea.append(message + "\n"));
     }
