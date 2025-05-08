@@ -81,7 +81,7 @@ public class Client extends JFrame {
 
     private void setupGUI() {
         setTitle("Blackjack Client");
-        setSize(600, 500);
+        setSize(700, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -111,8 +111,8 @@ public class Client extends JFrame {
         cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
 
         JScrollPane cardScrollPane = new JScrollPane(cardPanel);
-        cardScrollPane.setPreferredSize(new Dimension(150, 0));
-        cardScrollPane.setMinimumSize(new Dimension(100, 0));
+        cardScrollPane.setPreferredSize(new Dimension(100, 0));
+        cardScrollPane.setMinimumSize(new Dimension(80, 0));
 
         dealerCardLabel = new JLabel("Dealer: ?");
 
@@ -158,9 +158,9 @@ public class Client extends JFrame {
                     String cardStr = line.substring("DEALER_FIRST_CARD ".length());
                     dealerCardLabel.setText("Dealer: " + cardStr);
                 } else if (line.startsWith("DEALER_HAND")) {
-                    showMessageWithDelay("Dealer's hand: " + line.substring("DEALER_HAND ".length()), 1000);
+                    showMessage("Dealer's hand: " + line.substring("DEALER_HAND ".length()));
                 } else if (line.startsWith("DEALER_HIT")) {
-                    showMessageWithDelay("Dealer hits: " + line.substring("DEALER_HIT ".length()), 1000);
+                    showMessage("Dealer hits: " + line.substring("DEALER_HIT ".length()));
                 } else if (line.startsWith("YOUR_TURN")) {
                     showMessage("It's your turn.");
                     isMyTurn = true;
@@ -189,17 +189,6 @@ public class Client extends JFrame {
         }
     }
     
-    private void showMessageWithDelay(String message, int delay) {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                Thread.sleep(delay); 
-                showMessage(message);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
     private void showMessage(String message) {
          SwingUtilities.invokeLater(() -> {
             try {
@@ -229,7 +218,10 @@ public class Client extends JFrame {
             } else if (message.contains("Dealer hits:")) {
                 StyleConstants.setForeground(style, new Color(150, 0, 150));  
             } else if (message.contains("CLEAR_HAND")) {
-                StyleConstants.setForeground(style, Color.LIGHT_GRAY);    
+                 StyleConstants.setForeground(style, Color.WHITE);
+                    StyleConstants.setBackground(style, Color.black);
+                    StyleConstants.setFontSize(style, 16);
+                    StyleConstants.setBold(style, true);  
             } else {
                 StyleConstants.setForeground(style, Color.BLACK);      
             }
