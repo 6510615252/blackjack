@@ -94,14 +94,14 @@ public class GameManager {
     private void dealerPlay() {
         roundOver = true;
         server.broadcastFromGameManager("DEALER_TURN");
-        server.broadcastFromGameManager("DEALER_HAND " + getDealerHandString() + " (Score: " + getDealerScore() + ")");
+        server.broadcastFromGameManager("DEALER_HAND " + getDealerHandString() + " (Score: " + getDealerScore()+ ")");
 
         while (getDealerScore() < 17) {
             try {
                 Card newCard = server.getDeck().drawCard();
                 getDealer().addCard(newCard);
                 server.broadcastFromGameManager("DEALER_HIT " + newCard.toString());
-                server.broadcastFromGameManager("DEALER_HAND " + getDealerHandString() + " (Score: " + getDealerScore() + ")");
+                server.broadcastFromGameManager("DEALER_HAND " + getDealerHandString() + " (Score: " + getDealerScore()+ ")");
             } catch (IllegalStateException e) {
                 server.log("Error drawing card for dealer: " + e.getMessage());
                 server.broadcastFromGameManager("GAME_OVER: " + e.getMessage());
