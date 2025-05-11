@@ -4,13 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.text.Document;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class Client extends JFrame {
 
@@ -24,7 +22,6 @@ public class Client extends JFrame {
     private JTextField inputField;
     private JButton hitButton;
     private JButton standButton;
-    private JPanel cardPanel;
     private JLabel dealerCardLabel;
     private boolean isMyTurn = false;
     private JLabel[] playerCardLabels = new JLabel[11];
@@ -42,7 +39,7 @@ public class Client extends JFrame {
 
     private HashMap<String, ImageIcon> cardImages = new HashMap<>();
     private String imageFolderPath = "./images/";
-    private boolean dealerHasFirstCard = false; // Added to track if dealer's first card is shown
+    private boolean dealerHasFirstCard = false;
 
     public Client(String serverAddress, int port) {
         this.serverAddress = serverAddress;
@@ -179,16 +176,16 @@ public class Client extends JFrame {
         gbc.weighty = 0.3;
         add(messagePanel, gbc);
 
-        inputField = new JTextField();
-        inputField.addActionListener(e -> {
-            sendMessage(inputField.getText());
-            inputField.setText("");
-        });
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.weightx = 1;
-        gbc.weighty = 0.1;
-        add(inputField, gbc);
+        // inputField = new JTextField();
+        // inputField.addActionListener(e -> {
+        //     sendMessage(inputField.getText().toLowerCase());
+        //     inputField.setText("");
+        // });
+        // gbc.gridx = 0;
+        // gbc.gridy = 4;
+        // gbc.weightx = 1;
+        // gbc.weighty = 0.1;
+        // add(inputField, gbc);
 
         dealerCardLabel = new JLabel("Dealer: ?");
         dealerPanel.add(dealerCardLabel);
@@ -209,13 +206,12 @@ public class Client extends JFrame {
             while ((line = in.readLine()) != null) {
                 final String message = line;
                 SwingUtilities.invokeLater(() -> {
-                    if (message.equals("INPUT_NAME")) {
-                    } else if (message.equals("GAME_START")) {
+                    if (message.equals("GAME_START")) {
                         showMessage("START!");
                         isMyTurn = false;
                         updateControlButtons();
                         clearHands();
-                        dealerHasFirstCard = false; // Reset flag at the start of each game
+                        dealerHasFirstCard = false;
                         dealerCardLabel.setText("Dealer: ?");
                     } else if (message.startsWith("INITIAL_CARDS")) {
                         String[] cards = message.substring("INITIAL_CARDS ".length()).split(" ");
@@ -226,14 +222,13 @@ public class Client extends JFrame {
                     } else if (message.startsWith("DEALER_FIRST_CARD")) {
                         String cardStr = message.substring("DEALER_FIRST_CARD ".length());
                         dealerHasFirstCard = true;
-                        // Display only the first card of the dealer
                         JLabel cardLabel = getCardLabel(cardStr);
-                        clearDealerHand(); // Clear any previous cards
+                        clearDealerHand(); 
                         dealerCards.add(cardLabel);
                         dealerPanel.add(cardLabel);
                         dealerPanel.revalidate();
                         dealerPanel.repaint();
-                        dealerCardLabel.setText("Dealer: "); // Or "" if you don't want "Dealer: "
+                        dealerCardLabel.setText("Dealer: "); 
                     } else if (message.startsWith("DEALER_HAND")) {
                         showMessage(message);
                         displayDealerHand(message);
@@ -252,9 +247,10 @@ public class Client extends JFrame {
                         isMyTurn = false;
                         updateControlButtons();
                         clearHands();
-                        dealerHasFirstCard = false; // Reset.
+                        dealerHasFirstCard = false;
                         dealerCardLabel.setText("Dealer: ?");
-                    } else {
+                    } 
+                    else {
                         showMessage(message);
                         isMyTurn = false;
                         updateControlButtons();
@@ -377,15 +373,15 @@ public class Client extends JFrame {
 
     private void displayDealerHand(String message) {
         String handInfo = message.substring("DEALER_HAND ".length());
-        String[] parts = handInfo.split("\\("); // Split by "(" to separate cards from the hand value
-        String cardDetails = parts[0].trim(); // Cards are before the first "("
+        String[] parts = handInfo.split("\\("); 
+        String cardDetails = parts[0].trim();
         String[] cards = cardDetails.split(" ");
 
-        clearDealerHand(); // Clear the dealer's hand
+        clearDealerHand(); 
 
         for (String cardStr : cards) {
             if (!cardStr.isEmpty()) {
-                addCardToDealer(cardStr); // Add each card individually
+                addCardToDealer(cardStr);
             }
         }
         if (parts.length > 1) {
@@ -404,7 +400,7 @@ public class Client extends JFrame {
     private void clearDealerHand() {
         dealerPanel.removeAll();
         dealerCards.clear();
-        dealerPanel.add(dealerCardLabel); // Keep the label
+        dealerPanel.add(dealerCardLabel);
         dealerPanel.revalidate();
         dealerPanel.repaint();
     }
@@ -414,7 +410,7 @@ public class Client extends JFrame {
         playerCards.clear();
         dealerPanel.removeAll();
         dealerCards.clear();
-        dealerPanel.add(dealerCardLabel); // Keep the dealerCardLabel
+        dealerPanel.add(dealerCardLabel);
         playerPanel.revalidate();
         playerPanel.repaint();
         dealerPanel.revalidate();
@@ -435,11 +431,11 @@ public class Client extends JFrame {
 
     private ImageIcon createScaledImageIcon(String path, int width, int height) {
         ImageIcon icon = new ImageIcon(getClass().getResource(path));
-        if (icon != null && icon.getImage() != null) { // Check for null ImageIcon and Image
+        if (icon != null && icon.getImage() != null) { 
             Image image = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
             return new ImageIcon(image);
         }
-        return new ImageIcon(getClass().getResource("/images/back.png")); // Return a default image on error
+        return new ImageIcon(getClass().getResource("/images/back.png")); 
     }
 
     public static void main(String[] args) {

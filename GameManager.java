@@ -57,13 +57,12 @@ public class GameManager {
     }
 
     public void handlePlayerAction(ClientHandler player, String action) {
-        if (roundOver) return; // Ignore actions if the round is over
+        if (roundOver) return;
 
         if (action.equals("HIT")) {
             try {
                 Card newCard = server.getDeck().drawCard();
                 player.addCard(newCard);
-
 
                 if (player.getScore() > 21) {
                     server.broadcastFromGameManager(player.getPlayerName() + " BUSTED!");
@@ -114,7 +113,7 @@ public class GameManager {
         }
 
         determineWinners();
-        server.enableNewRoundButton(); // Enable the new round button after the round ends
+        server.enableNewRoundButton(); 
     }
 
     private void determineWinners() {

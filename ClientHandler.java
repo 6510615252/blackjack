@@ -10,20 +10,19 @@ public class ClientHandler extends Thread {
     private String playerName;
     private Server server;
     private int score;
-    private int clientPort; // Store the port number of this client
+    private int clientPort;
 
     public ClientHandler(Socket socket, Server server) {
         this.socket = socket;
         this.playerCards = new ArrayList<>();
         this.server = server;
         this.score = 0;
-        this.clientPort = socket.getLocalPort(); // Get the local port of the socket
+        this.clientPort = socket.getLocalPort();
         try {
-            //input from client, output to client
+
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             output = new PrintWriter(socket.getOutputStream(), true);
 
-            output.println("INPUT_NAME");
             this.playerName = input.readLine();
             server.log("New player: " + playerName + " has joined on port " + clientPort);
             server.broadcast(playerName + " JOINED");
@@ -44,10 +43,9 @@ public class ClientHandler extends Thread {
             String clientInput;
             while ((clientInput = input.readLine()) != null) {
                 server.log(playerName + " says: " + clientInput + " (on port " + clientPort + ")");
+                server.broadcast(playerName + " says: " + clientInput);
                 if (clientInput.equals("HIT") || clientInput.equals("STAND")) {
                     server.handleClientAction(this, clientInput);
-                } else {
-                    // Handle other commands if needed
                 }
             }
         } catch (IOException e) {
@@ -77,8 +75,8 @@ public class ClientHandler extends Thread {
     public void addCard(Card card) {
         playerCards.add(card);
         score = calculateScore();
-        sendMessage("NEW_CARD " + card.toString()); // Inform client about the new card
-        sendHand(); // Update the client's hand display
+        sendMessage("NEW_CARD " + card.toString()); 
+        sendHand(); 
     }
 
     public int getScore() {
@@ -123,6 +121,6 @@ public class ClientHandler extends Thread {
     public void clearCards() {
         playerCards.clear();
         score = 0;
-        sendMessage("CLEAR_HAND"); // Inform client to clear their hand display
+        sendMessage("CLEAR_HAND");
     }
 }
