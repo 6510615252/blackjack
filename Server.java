@@ -10,12 +10,12 @@ public class Server extends JFrame {
     private ServerSocket serverSocket;
     private final int initialPort = 10000;
     private int maxPlayers;
-    private List<ClientHandler> clients = new ArrayList<>(); 
-    private Deck deck; 
-    private boolean gameStarted = false; 
-    private DealerAI dealer; 
-    private GameManager gameManager; 
-    private Set<Integer> usedPorts = new HashSet<>(); 
+    private List<ClientHandler> clients = new ArrayList<>();
+    private Deck deck;
+    private boolean gameStarted = false;
+    private DealerAI dealer;
+    private GameManager gameManager;
+    private Set<Integer> usedPorts = new HashSet<>();
 
     private JTextArea logArea; // Text area to display server logs
     private JButton startButton; // Button to start the game
@@ -25,10 +25,10 @@ public class Server extends JFrame {
     public Server(int maxPlayers) {
         super("Blackjack Server");
         this.maxPlayers = maxPlayers;
-        setupGUI(); 
-        setupServer(); 
-        gameManager = new GameManager(this); 
-        usedPorts.add(initialPort); 
+        setupGUI();
+        setupServer();
+        gameManager = new GameManager(this);
+        usedPorts.add(initialPort);
     }
 
     private void setupGUI() {
@@ -143,7 +143,7 @@ public class Server extends JFrame {
             return;
         gameStarted = true;
         startButton.setEnabled(false);
-        newRoundButton.setEnabled(true);
+        newRoundButton.setEnabled(false);
         log("Starting Blackjack game with " + clients.size() + " players!");
         broadcast("GAME_START");
 
@@ -163,16 +163,23 @@ public class Server extends JFrame {
             return;
         gameStarted = false;
         newRoundButton.setEnabled(false);
-        if (deck.getRemainingCards().size() > 1) {
-            deck.shuffle();
-            dealer = new DealerAI(deck);
+        broadcast("REMAINING CARDS: " + deck.getRemainingCards().size());
+        if (deck.getRemainingCards().size() > ((clients.size() * 2) + 2)) {
+            dealer.getCards().clear();
             gameManager.startNewRound(clients, deck, dealer);
             gameStarted = true;
-            newRoundButton.setEnabled(true);
             return;
         }
         log("Starting new round");
         broadcast("DECK RAN  OUT OF CARD");
+        deck = new Deck();
+        broadcast("NEW DECK CREATED");
+        deck.shuffle(); 
+        dealer = new DealerAI(deck);
+        gameManager.startNewRound(clients, deck, dealer);
+        gameStarted = true;
+        log("Starting new round");
+
     }
 
     public void enableNewRoundButton() {

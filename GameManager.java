@@ -34,15 +34,15 @@ public class GameManager {
     public void startNewRound(List<ClientHandler> clients, Deck deck, DealerAI dealer) {
         currentPlayerIndex = 0;
         roundOver = false;
-    
-        if (deck.getRemainingCards().size() > 1) { 
+
+        if (deck.getRemainingCards().size() > ((clients.size() * 2) + 2)) {
             for (ClientHandler player : clients) {
                 player.clearCards();
                 Card card1 = deck.drawCard();
                 Card card2 = deck.drawCard();
                 player.sendInitialCards(card1, card2);
             }
-        
+
             dealer.getCards().clear();
             dealer.drawCard();
             dealer.drawCard();
@@ -51,13 +51,14 @@ public class GameManager {
             moveToNextPlayer();
         }
     }
-    
+
     public int getCurrentPlayerIndex() {
         return currentPlayerIndex;
     }
 
     public void handlePlayerAction(ClientHandler player, String action) {
-        if (roundOver) return;
+        if (roundOver)
+            return;
 
         if (action.equals("HIT")) {
             try {
@@ -73,6 +74,8 @@ public class GameManager {
             } catch (IllegalStateException e) {
                 server.log("Error drawing card for " + player.getPlayerName() + ": " + e.getMessage());
                 server.broadcastFromGameManager("GAME_OVER: " + e.getMessage());
+                roundOver = true;
+                server.enableNewRoundButton();
             }
         } else if (action.equals("STAND")) {
             server.broadcastFromGameManager(player.getPlayerName() + " STANDS");
@@ -93,14 +96,15 @@ public class GameManager {
     private void dealerPlay() {
         roundOver = true;
         server.broadcastFromGameManager("DEALER_TURN");
-        server.broadcastFromGameManager("DEALER_HAND " + getDealerHandString() + " (Score: " + getDealerScore()+ ")");
+        server.broadcastFromGameManager("DEALER_HAND " + getDealerHandString() + " (Score: " + getDealerScore() + ")");
 
         while (getDealerScore() < 17) {
             try {
                 Card newCard = server.getDeck().drawCard();
                 getDealer().addCard(newCard);
                 server.broadcastFromGameManager("DEALER_HIT " + newCard.toString());
-                server.broadcastFromGameManager("DEALER_HAND " + getDealerHandString() + " (Score: " + getDealerScore()+ ")");
+                server.broadcastFromGameManager(
+                        "DEALER_HAND " + getDealerHandString() + " (Score: " + getDealerScore() + ")");
             } catch (IllegalStateException e) {
                 server.log("Error drawing card for dealer: " + e.getMessage());
                 server.broadcastFromGameManager("GAME_OVER: " + e.getMessage());
@@ -113,7 +117,7 @@ public class GameManager {
         }
 
         determineWinners();
-        server.enableNewRoundButton(); 
+        server.enableNewRoundButton();
     }
 
     private void determineWinners() {

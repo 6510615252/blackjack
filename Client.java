@@ -296,7 +296,7 @@ public class Client extends JFrame {
                     StyleConstants.setForeground(style, new Color(150, 0, 150));
                 } else if (message.contains("Dealer hits:")) {
                     StyleConstants.setForeground(style, new Color(150, 0, 150));
-                } else if (message.contains("CLEAR_HAND")) {
+                } else if (message.contains("CLEAR_HAND") || message.contains("GAME_OVER:") || message.contains("REMAINING CARDS:") || message.contains("NEW DECK CREATED") || message.contains("Starting new round") || message.contains("DECK RAN  OUT OF CARD")) {
                     StyleConstants.setForeground(style, Color.WHITE);
                     StyleConstants.setBackground(style, Color.black);
                     StyleConstants.setFontSize(style, 16);
