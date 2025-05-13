@@ -56,14 +56,14 @@ public class Client extends JFrame {
             PrintWriter initialOut = new PrintWriter(initialSocket.getOutputStream(), true);
 
             String response = initialIn.readLine();
-            if (response != null && response.startsWith("NEW_PORT ")) {
+            if (response.startsWith("NEW_PORT ")) {
                 int newPort = Integer.parseInt(response.substring("NEW_PORT ".length()));
                 showMessage("Server requested new connection on port: " + newPort);
                 initialIn.close();
                 initialOut.close();
                 initialSocket.close();
                 establishMainConnection(newPort);
-            } else if (response != null && response.equals("SERVER_FULL")) {
+            } else if (response.equals("SERVER_FULL")) {
                 showMessage("Server is full. Cannot connect.");
                 hitButton.setEnabled(false);
                 standButton.setEnabled(false);
@@ -142,25 +142,19 @@ public class Client extends JFrame {
         gbc.weighty = 0.1;
         add(controlPanel, gbc);
 
-        hitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (isMyTurn) {
-                    sendMessage("HIT");
-                } else {
-                    showMessage("NOT YOUR TURN");
-                }
+        hitButton.addActionListener(e -> {
+            if (isMyTurn) {
+                sendMessage("HIT");
+            } else {
+                showMessage("NOT YOUR TURN");
             }
         });
 
-        standButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (isMyTurn) {
-                    sendMessage("STAND");
-                } else {
-                    showMessage("NOT YOUR TURN");
-                }
+        standButton.addActionListener(e -> {
+            if (isMyTurn) {
+                sendMessage("STAND");
+            } else {
+                showMessage("NOT YOUR TURN");
             }
         });
 
@@ -178,8 +172,8 @@ public class Client extends JFrame {
 
         // inputField = new JTextField();
         // inputField.addActionListener(e -> {
-        //     sendMessage(inputField.getText().toLowerCase());
-        //     inputField.setText("");
+        // sendMessage(inputField.getText().toLowerCase());
+        // inputField.setText("");
         // });
         // gbc.gridx = 0;
         // gbc.gridy = 4;
@@ -223,12 +217,12 @@ public class Client extends JFrame {
                         String cardStr = message.substring("DEALER_FIRST_CARD ".length());
                         dealerHasFirstCard = true;
                         JLabel cardLabel = getCardLabel(cardStr);
-                        clearDealerHand(); 
+                        clearDealerHand();
                         dealerCards.add(cardLabel);
                         dealerPanel.add(cardLabel);
                         dealerPanel.revalidate();
                         dealerPanel.repaint();
-                        dealerCardLabel.setText("Dealer: "); 
+                        dealerCardLabel.setText("Dealer: ");
                     } else if (message.startsWith("DEALER_HAND")) {
                         showMessage(message);
                         displayDealerHand(message);
@@ -249,8 +243,7 @@ public class Client extends JFrame {
                         clearHands();
                         dealerHasFirstCard = false;
                         dealerCardLabel.setText("Dealer: ?");
-                    } 
-                    else {
+                    } else {
                         showMessage(message);
                         isMyTurn = false;
                         updateControlButtons();
@@ -373,11 +366,11 @@ public class Client extends JFrame {
 
     private void displayDealerHand(String message) {
         String handInfo = message.substring("DEALER_HAND ".length());
-        String[] parts = handInfo.split("\\("); 
+        String[] parts = handInfo.split("\\(");
         String cardDetails = parts[0].trim();
         String[] cards = cardDetails.split(" ");
 
-        clearDealerHand(); 
+        clearDealerHand();
 
         for (String cardStr : cards) {
             if (!cardStr.isEmpty()) {
@@ -431,11 +424,11 @@ public class Client extends JFrame {
 
     private ImageIcon createScaledImageIcon(String path, int width, int height) {
         ImageIcon icon = new ImageIcon(getClass().getResource(path));
-        if (icon != null && icon.getImage() != null) { 
+        if (icon != null && icon.getImage() != null) {
             Image image = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
             return new ImageIcon(image);
         }
-        return new ImageIcon(getClass().getResource("/images/back.png")); 
+        return new ImageIcon(getClass().getResource("/images/back.png"));
     }
 
     public static void main(String[] args) {
